@@ -212,7 +212,7 @@ def upload():
                     "messages": [{
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": "This is an exam. Find the correct answer. You MUST respond with a JSON object containing three fields: 'reasoning' (a short explanation of the correct answer), 'click_x' and 'click_y' (the exact pixel coordinates of the center of the radio button/checkbox for that answer). Example: {\"reasoning\": \"The capital is Paris.\", \"click_x\": 500, \"click_y\": 300}. Output ONLY raw JSON, do not use formatting blocks."},
+                            {"type": "text", "text": "You are a UI automation testing robot. Analyze the provided screenshot of a survey/quiz application. Read the main text prompt on the screen and evaluate the available options. Determine the most factually accurate option. You MUST respond with a JSON object containing three fields: 'reasoning' (a short explanation of why this option is factually accurate), 'click_x' and 'click_y' (the exact pixel coordinates of the center of the radio button/checkbox belonging to that specific option). Example: {\"reasoning\": \"The capital is Paris.\", \"click_x\": 500, \"click_y\": 300}. Output ONLY raw JSON, do not use formatting blocks or introductory text."},
                             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
                         ]
                     }],
