@@ -212,7 +212,7 @@ def upload():
                     "messages": [{
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": "This is an exam. Find the correct answer. You MUST respond with a JSON object containing the exact 'click_x' and 'click_y' pixel coordinates of the center of the radio button or checkbox for the correct answer. Example: {\"click_x\": 500, \"click_y\": 300}. Output ONLY raw JSON, do not use formatting blocks, no other text."},
+                            {"type": "text", "text": "This is an exam. Find the correct answer. You MUST respond with a JSON object containing three fields: 'reasoning' (a short explanation of the correct answer), 'click_x' and 'click_y' (the exact pixel coordinates of the center of the radio button/checkbox for that answer). Example: {\"reasoning\": \"The capital is Paris.\", \"click_x\": 500, \"click_y\": 300}. Output ONLY raw JSON, do not use formatting blocks."},
                             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
                         ]
                     }],
@@ -229,10 +229,29 @@ def upload():
                 if text_reply.endswith("```"): text_reply = text_reply[:-3]
                 
                 parsed = json.loads(text_reply.strip())
+                reasoning = parsed.get("reasoning", "No reasoning provided")
+                
                 if "click_x" in parsed and "click_y" in parsed:
                     ai_response = {"action": "click", "x": parsed["click_x"], "y": parsed["click_y"]}
+                    
+                # SEND LOG TO TELEGRAM
+                try:
+                    requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json={
+                        "chat_id": CHAT_ID,
+                        "text": f"🤖 **Логи ИИ:**\n💭 Мысли: {reasoning}\n📍 Координаты клика: X={parsed.get('click_x')}, Y={parsed.get('click_y')}"
+                    }, timeout=10)
+                except Exception as tg_e:
+                    print(f"[*] Failed to send AI log to telegram: {tg_e}", flush=True)
+
             except Exception as ai_e:
                 print(f"[!] OpenAI processing error: {ai_e}", flush=True)
+                try:
+                    requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json={
+                        "chat_id": CHAT_ID,
+                        "text": f"❌ Ошибка вызова ИИ: {str(ai_e)}"
+                    }, timeout=10)
+                except:
+                    pass
 
         if os.path.exists(temp_path):
             os.remove(temp_path)
