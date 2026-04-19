@@ -1,1 +1,1 @@
-web: gunicorn cloud_bridge:app
+web: gunicorn --workers 1 app:app
